@@ -1,0 +1,68 @@
+.hero {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.anime-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.anime-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.anime-card img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.anime-card h3 {
+    margin-top: 1rem;
+}
+
+.anime-card a {
+    margin-top: auto;
+}
+
+footer {
+    text-align: center;
+    margin-top: 4rem;
+    padding-bottom: 2rem;
+}
+.details-container {
+    margin-top: 2rem;
+}
+
+.anime-details {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.details-image {
+    width: 100%;
+    border-radius: 10px;
+}
+
+@media (max-width: 700px) {
+
+    .anime-details {
+        grid-template-columns: 1fr;
+    }
+
+    .details-image {
+        max-width: 350px;
+        margin: auto;
+    }
+}
