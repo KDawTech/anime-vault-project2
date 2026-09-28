@@ -2,11 +2,13 @@
 
 ## Overview
 
-AnimeVault is a list-based web application created for **CodePath WEB103 - Advanced Web Development, Unit 1 Project 1: Listicle Part 1**.
+AnimeVault is a list-based web application created for **CodePath WEB103 - Advanced Web Development, Unit 2 Project 2: Listicle Part 2**.
 
-The application allows users to browse a collection of anime recommendations. Each anime is displayed as a card containing basic information, and users can click **View Details** to open a dedicated page containing additional information about that anime.
+The application allows users to browse a collection of anime recommendations. Each anime is displayed as a card containing basic information, and users can click **View Details** to open a dedicated page with additional information.
 
-The application was built using vanilla HTML, CSS, and JavaScript with an Express.js backend and PicoCSS for styling.
+For Project 2, AnimeVault was refactored to retrieve its anime data from a **PostgreSQL database hosted on Render** instead of storing the list directly in the frontend JavaScript.
+
+The application uses vanilla HTML, CSS, and JavaScript on the frontend, with Node.js, Express.js, PostgreSQL, and PicoCSS.
 
 ---
 
@@ -17,22 +19,24 @@ The application was built using vanilla HTML, CSS, and JavaScript with an Expres
 The following required functionality is completed:
 
 - [x] The web app uses only HTML, CSS, and JavaScript without a frontend framework
-- [x] The front page of the web app is functional and appropriately styled
-- [x] The web app displays a title
-- [x] The website displays at least five unique list items
-- [x] Each list item includes at least three displayed attributes
-- [x] Each list item has a corresponding detail page
-- [x] Users can click on each item to view a detailed version
-- [x] Detail pages display all available information for the selected anime
-- [x] The web app serves a custom 404 page when no matching route is found
-- [x] The webpage is styled using PicoCSS
+- [x] Data is supplied to the app using a Render PostgreSQL database
+- [x] The web app is connected to a Render PostgreSQL database
+- [x] The database contains an appropriately structured table for the list items
+
+### Additional Features
+
+- [x] Displays at least five unique anime
+- [x] Each anime displays multiple attributes
+- [x] Each anime has its own detail page
+- [x] Users can click an anime to view its full information
+- [x] Data is retrieved from PostgreSQL through Express API routes
+- [x] Custom 404 page
+- [x] Responsive card layout
+- [x] PicoCSS styling
 
 ### Stretch Features
 
-The following stretch functionality is implemented:
-
-- [x] List items are displayed as responsive cards instead of a basic list
-- [x] Responsive styling allows the layout to adjust to different screen sizes
+- [ ] Users can search for anime using a specific attribute
 
 ---
 
@@ -46,7 +50,7 @@ AnimeVault currently includes:
 4. Jujutsu Kaisen
 5. Fullmetal Alchemist: Brotherhood
 
-Each anime contains shared attributes including:
+Each anime contains the following database attributes:
 
 - ID
 - Title
@@ -65,6 +69,8 @@ Each anime contains shared attributes including:
 - JavaScript
 - Node.js
 - Express.js
+- PostgreSQL
+- Render PostgreSQL
 - PicoCSS
 - Git
 - GitHub
@@ -76,6 +82,17 @@ Each anime contains shared attributes including:
 ```text
 anime-vault/
 │
+├── config/
+│   ├── database.js
+│   ├── dotenv.js
+│   └── reset.js
+│
+├── data/
+│   └── anime.js
+│
+├── routes/
+│   └── anime.js
+│
 ├── public/
 │   ├── index.html
 │   ├── details.html
@@ -83,6 +100,7 @@ anime-vault/
 │   ├── style.css
 │   └── script.js
 │
+├── .env
 ├── .gitignore
 ├── demo.gif
 ├── package.json
@@ -91,45 +109,65 @@ anime-vault/
 └── server.js
 ```
 
+> The `.env` file contains database credentials and is excluded from GitHub using `.gitignore`.
+
 ---
 
-## Running the Project Locally
+## Database
 
-### 1. Clone the repository
+AnimeVault uses a PostgreSQL database hosted on Render.
 
-```bash
-git clone YOUR-GITHUB-REPOSITORY-URL
-```
+The database contains an `anime` table with the following structure:
 
-### 2. Enter the project directory
+| Column | Type |
+| --- | --- |
+| id | SERIAL PRIMARY KEY |
+| title | VARCHAR |
+| genre | VARCHAR |
+| year | INTEGER |
+| rating | VARCHAR |
+| description | TEXT |
+| image | VARCHAR |
 
-```bash
-cd anime-vault
-```
+The original anime data is stored in `data/anime.js` and is used to seed the PostgreSQL database.
 
-### 3. Install dependencies
+The frontend does not directly read from this file. Instead, it retrieves the anime through the Express API.
 
-```bash
-npm install
-```
+---
 
-### 4. Start the Express server
+## API Routes
 
-```bash
-node server.js
-```
-
-### 5. Open the application
-
-Open your browser and navigate to:
+### Get All Anime
 
 ```text
-http://localhost:3000
+GET /api/anime
+```
+
+Returns all anime stored in the PostgreSQL database.
+
+Example:
+
+```text
+http://localhost:3000/api/anime
+```
+
+### Get One Anime
+
+```text
+GET /api/anime/:id
+```
+
+Returns one anime using its database ID.
+
+Example:
+
+```text
+http://localhost:3000/api/anime/1
 ```
 
 ---
 
-## Routes
+## Application Routes
 
 ### Home Page
 
@@ -137,9 +175,15 @@ http://localhost:3000
 /
 ```
 
-Displays all available anime.
+Displays all anime retrieved from PostgreSQL.
 
-### Anime Detail Pages
+### Anime Detail Page
+
+```text
+/anime/:id
+```
+
+Examples:
 
 ```text
 /anime/1
@@ -149,41 +193,126 @@ Displays all available anime.
 /anime/5
 ```
 
-Each route displays detailed information about the corresponding anime.
+Each page displays detailed information about the selected anime.
 
 ### 404 Page
 
-Invalid URLs or anime IDs display a custom **404 - Page Not Found** page.
-
-For example:
-
-```text
-/anime/99
-```
-
-or
-
-```text
-/random
-```
+Invalid application routes display a custom **404 - Page Not Found** page.
 
 ---
 
 ## How It Works
 
-The Express server handles incoming requests and serves the appropriate HTML files.
+### 1. PostgreSQL Database
 
-The home page uses JavaScript to loop through the anime data and dynamically create a card for each anime.
+Anime data is stored in the `anime` table inside a PostgreSQL database hosted on Render.
 
-When a user selects **View Details**, the anime's ID is included in the URL.
+### 2. Express Backend
+
+The Express server connects to PostgreSQL using the `pg` package.
+
+Database credentials are stored as environment variables:
+
+```text
+PGDATABASE
+PGHOST
+PGPASSWORD
+PGPORT
+PGUSER
+```
+
+### 3. API
+
+Express provides API routes for retrieving anime data:
+
+```text
+/api/anime
+/api/anime/:id
+```
+
+### 4. Frontend
+
+The frontend uses JavaScript's `fetch()` function to request data from the API.
 
 For example:
 
-```text
-/anime/1
+```javascript
+fetch("/api/anime")
 ```
 
-JavaScript reads the ID from the URL and finds the corresponding anime data to display on the details page.
+The returned database data is then used to dynamically create the anime cards.
+
+When a user visits a detail page such as:
+
+```text
+/anime/4
+```
+
+the frontend requests:
+
+```text
+/api/anime/4
+```
+
+and displays the returned anime.
+
+---
+
+## Running the Project Locally
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/KDawTech/anime-vault.git
+```
+
+### 2. Enter the Project Directory
+
+```bash
+cd anime-vault
+```
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4. Create Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+PGDATABASE=your_database_name
+PGHOST=your_external_database_hostname
+PGPASSWORD=your_database_password
+PGPORT=5432
+PGUSER=your_database_username
+```
+
+Do not commit the `.env` file to GitHub.
+
+### 5. Create and Seed the Anime Table
+
+```bash
+npm run reset
+```
+
+This creates the `anime` PostgreSQL table and inserts the anime data.
+
+### 6. Start the Server
+
+```bash
+npm start
+```
+
+### 7. Open AnimeVault
+
+Navigate to:
+
+```text
+http://localhost:3000
+```
 
 ---
 
@@ -195,19 +324,30 @@ Here's a walkthrough of the implemented features:
 
 ---
 
-## Notes
+## Challenges
 
-One challenge during development was creating one detail page that could display different anime depending on the route.
+One challenge was refactoring AnimeVault so the frontend no longer relied on a hard-coded anime array.
 
-This was handled by using an Express route parameter:
+In Project 1, anime data was stored directly inside the frontend JavaScript.
 
-```javascript
-app.get("/anime/:id", ...)
-```
+For Project 2, the data was moved into PostgreSQL. Express API routes now query the database and return the results to the frontend.
 
-The ID is then read from the URL and used to find the corresponding anime.
+Another challenge was configuring the Render PostgreSQL connection using environment variables while keeping database credentials private.
 
-Another consideration was structuring each anime with the same attributes. This creates a consistent data structure that can later be moved into a database.
+---
+
+## What I Learned
+
+Through this project, I practiced:
+
+- Creating a PostgreSQL table
+- Seeding a PostgreSQL database
+- Connecting Node.js and Express to PostgreSQL
+- Using environment variables for database credentials
+- Writing SQL queries from an Express application
+- Creating API routes
+- Retrieving database data with `fetch()`
+- Separating frontend and backend responsibilities
 
 ---
 
@@ -215,9 +355,10 @@ Another consideration was structuring each anime with the same attributes. This 
 
 Possible future improvements include:
 
-- Connecting AnimeVault to a database
 - Adding more anime
 - Adding search functionality
 - Adding genre filters
-- Allowing users to sort anime by rating or year
+- Sorting anime by rating or year
+- Allowing users to add new anime
+- Allowing users to edit or delete anime
 - Improving animations and card interactions
