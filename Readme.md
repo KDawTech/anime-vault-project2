@@ -102,7 +102,7 @@ anime-vault/
 │
 ├── .env
 ├── .gitignore
-├── demo.gif
+├── demo1.gif
 ├── package.json
 ├── package-lock.json
 ├── README.md
