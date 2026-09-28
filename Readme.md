@@ -320,7 +320,7 @@ http://localhost:3000
 
 Here's a walkthrough of the implemented features:
 
-![AnimeVault Walkthrough](demo.gif)
+![AnimeVault Walkthrough](demo1.gif)
 
 ---
 
